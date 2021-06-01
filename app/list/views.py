@@ -29,31 +29,32 @@ def create_list_view(request):
         obj = form.save(commit=False)
         obj.save()
 
-        with open(obj.csv_file.path) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            line_count = 0
-            for row in csv_reader:
-                if line_count == 0:
-                    line_count += 1
-                else:
-                    # validate email or phone number, skipping invalid fields
-                    check_input = check(row[2])
-
-                    if check_input == 'Email':
-                        person, created = Person.objects.get_or_create(name=row[0], gender=row[1], email=row[2])
-                    elif check_input == 'Phone':
-                        person, created = Person.objects.get_or_create(name=row[0], gender=row[1], phone=row[2])
-
-                    # we don't add the person to the list if it doesn't belong to the list type (ex: email in phone list)
-                    # we accept both if the list is mixed
-                    if obj.type != 'Mixt':
-                        if check_input == obj.type:
-                            obj.people.add(person)
+        if obj.csv_file:
+            with open(obj.csv_file.path) as csv_file:
+                csv_reader = csv.reader(csv_file, delimiter=',')
+                line_count = 0
+                for row in csv_reader:
+                    if line_count == 0:
+                        line_count += 1
                     else:
-                        obj.people.add(person)
+                        # validate email or phone number, skipping invalid fields
+                        check_input = check(row[2])
 
-                    print(row[0])
-                    line_count += 1
+                        if check_input == 'Email':
+                            person, created = Person.objects.get_or_create(name=row[0], gender=row[1], email=row[2])
+                        elif check_input == 'Phone':
+                            person, created = Person.objects.get_or_create(name=row[0], gender=row[1], phone=row[2])
+
+                        # we don't add the person to the list if it doesn't belong to the list type (ex: email in phone list)
+                        # we accept both if the list is mixed
+                        if obj.type != 'Mixt':
+                            if check_input == obj.type:
+                                obj.people.add(person)
+                        else:
+                            obj.people.add(person)
+
+                        print(row[0])
+                        line_count += 1
 
         return HttpResponseRedirect(reverse('view-list'))
 

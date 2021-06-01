@@ -132,10 +132,10 @@ def choose_fields(request, messageid):
 
                 for i in range(step):
                     print(i)
-                    new_msg = message_obj.message if i == 1 else message_obj.message_female
+                    new_msg = message_obj.message if i == 0 else message_obj.message_female
                     for field in FILL_FIELDS:
                         new_msg = new_msg.replace(field, FIELD_DICT[form.cleaned_data[field]])
-                    if i == 1:
+                    if i == 0:
                         message_obj.message = new_msg
                     else:
                         message_obj.message_female = new_msg
